@@ -16,9 +16,23 @@ from threading import Thread
 from tkinter import *
 import wget
 import os
-import glob
 
 # An IDE for PyBasic
+
+if os.path.exists('tmp') == False:
+    os.mkdir('tmp')
+
+try:
+    if os.path.exists('tmp/LICENSE') == True:
+        le = open('tmp/LICENSE', 'r')
+        License_ide = le.read()
+        le.close()
+    else:
+        wget.download('https://raw.githubusercontent.com/Jeremy823/PyBasic-IDE/main/LICENSE', 'tmp/LICENSE')
+        le = open('tmp/LICENSE', 'r')
+        License_ide = le.read()
+        le.close()
+except: print("Failed to download the 'LICENSE' file!")
 
 def run():
     command = text.get('1.0', 'end-1c')
@@ -39,34 +53,19 @@ def clear_term():
     else:
         print('\n' * 100)
 
-
-try:
-    if glob.glob('tmp/LICENSE') == "['tmp/LICENSE']":
-        wget.download('https://raw.githubusercontent.com/Jeremy823/PyBasic-IDE/main/LICENSE', 'tmp/LICENSE')
-        le = open('tmp/LICENSE', 'a')
-        License_ide = le.read()
-        le.close()
-    else:
-        le = open('tmp/LICENSE', 'a')
-        License_ide = le.read()
-        le.close()
-except: print("Cannot Download LICENSE file!")
-
 def about(License_ide=License_ide):
     about = Toplevel(root)
     about.title("About")
-    about.geometry('400x400')
     Label(about, text="Python Basic IDE by Jeremy823").pack()
     Label(about, text="PyBasic Author: https://github.com/richpl/PyBasic").pack()
-    license_ide = Text(about)
+    Label(about, text="License").pack
+    about_scrollbar = Scrollbar(about)
+    about_scrollbar.pack(side = RIGHT, fill = Y) 
+    license_ide = Text(about, yscrollcommand = about_scrollbar.set)
     license_ide.pack()
     license_ide.insert('1.0', License_ide)
+    about_scrollbar.config(command=license_ide.yview)
     Button(about, text="Ok", command=about.destroy).pack()
-
-try:
-    os.mkdir('tmp')
-except:
-    pass
 
 root = Tk()
 
@@ -74,8 +73,12 @@ root.columnconfigure(0, weight=1)
 root.rowconfigure(0, weight=1)
 root.title("PyBasic IDE by Jeremy823")
 
-text = Text(root, undo=True)
-text.grid(sticky=NSEW)
+scrollbar = Scrollbar(root)
+scrollbar.grid(column=1, row=0, sticky=NS)
+
+text = Text(root, undo=True, yscrollcommand = scrollbar.set)
+text.grid(column=0, row=0, sticky=NSEW)
+scrollbar.config( command = text.yview ) 
 
 menu = Menu(root)
 
